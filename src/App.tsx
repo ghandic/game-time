@@ -1,12 +1,32 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
+import Confetti from 'react-confetti'
 
 type Suit = '♠' | '♣' | '♥' | '♦'
 type CardType = 'monster' | 'potion' | 'weapon'
-type CardValue = '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | 'J' | 'Q' | 'K' | 'Ace'
-type Card = { id: number, suit: Suit, value: CardValue, numericValue: number, type: CardType }
+type CardValue =
+  | '2'
+  | '3'
+  | '4'
+  | '5'
+  | '6'
+  | '7'
+  | '8'
+  | '9'
+  | '10'
+  | 'J'
+  | 'Q'
+  | 'K'
+  | 'Ace'
+type Card = {
+  id: number
+  suit: Suit
+  value: CardValue
+  numericValue: number
+  type: CardType
+}
 type Deck = Card[]
 
-type Weapon = { value: number, lastUsedAttack: number | null }
+type Weapon = { value: number; lastUsedAttack: number | null }
 
 interface GameState {
   deck: Deck
@@ -15,50 +35,80 @@ interface GameState {
   equippedWeapon: Weapon | null
   ranAwayLastRoom: boolean
   gameOver: boolean
+  won: boolean
+  history: GameStateHistory[]
+  gameStarted: boolean
+}
+
+type GameStateHistory = {
+  deck: Deck
+  room: Deck
+  health: number
+  equippedWeapon: Weapon | null
+  ranAwayLastRoom: boolean
+  gameOver: boolean
+  won: boolean
 }
 
 // Utility: shuffle an array in-place using Fisher-Yates algorithm
 function shuffle(array: Deck) {
-  let currentIndex = array.length, randomIndex
+  let currentIndex = array.length,
+    randomIndex
 
   while (currentIndex !== 0) {
     randomIndex = Math.floor(Math.random() * currentIndex)
     currentIndex--
-      ;[array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]]
+      ;[array[currentIndex], array[randomIndex]] = [
+        array[randomIndex],
+        array[currentIndex],
+      ]
   }
   return array
 }
 
-// Create a new deck based on your rules:
-// • Spades (♠) & Clubs (♣) are monsters (cards 2–10, J, Q, K, Ace)
-// • Hearts (♥) are health potions (only 2–10)
-// • Diamonds (♦) are weapon cards (only 2–10)
+// Create a new deck based on your rules.
 function createDeck(): Deck {
   const deck: Deck = []
   let idCounter = 0
   const faceCards = ['J', 'Q', 'K', 'Ace']
   const suitsMonsters: Suit[] = ['♠', '♣']
   // Monster cards
-  suitsMonsters.forEach(suit => {
-    // Numbers 2-10
+  suitsMonsters.forEach((suit) => {
     for (let i = 2; i <= 10; i++) {
-      deck.push({ id: idCounter++, suit, value: i.toString() as CardValue, numericValue: i, type: 'monster' })
+      deck.push({
+        id: idCounter++,
+        suit,
+        value: i.toString() as CardValue,
+        numericValue: i,
+        type: 'monster',
+      })
     }
-    // Face cards with assigned values: J=11, Q=12, K=13, Ace=14
-    faceCards.forEach(card => {
+    faceCards.forEach((card) => {
       const numericValue = card === 'J' ? 11 : card === 'Q' ? 12 : card === 'K' ? 13 : 14
-      deck.push({ id: idCounter++, suit, value: card as CardValue, numericValue, type: 'monster' })
+      deck.push({
+        id: idCounter++,
+        suit,
+        value: card as CardValue,
+        numericValue,
+        type: 'monster',
+      })
     })
   })
 
   // Hearts and Diamonds (only 2-10)
-  const otherSuits: { suit: Suit, type: CardType }[] = [
+  const otherSuits: { suit: Suit; type: CardType }[] = [
     { suit: '♥', type: 'potion' },
-    { suit: '♦', type: 'weapon' }
+    { suit: '♦', type: 'weapon' },
   ]
   otherSuits.forEach(({ suit, type }) => {
     for (let i = 2; i <= 10; i++) {
-      deck.push({ id: idCounter++, suit, value: i.toString() as CardValue, numericValue: i, type })
+      deck.push({
+        id: idCounter++,
+        suit,
+        value: i.toString() as CardValue,
+        numericValue: i,
+        type,
+      })
     }
   })
 
@@ -66,30 +116,43 @@ function createDeck(): Deck {
 }
 
 type CardProps = {
-  card: Card,
-  onDrink: () => void,
-  onEquip: () => void,
-  onFightBareHands: () => void,
-  onFightWithWeapon: () => void,
-  canFightWithWeapon: boolean | null,
+  card: Card
+  onDrink: () => void
+  onEquip: () => void
+  onFightBareHands: () => void
+  onFightWithWeapon: () => void
+  canFightWithWeapon: boolean | null
   globalDisabled: boolean
 }
 
-// A card component styled like a real playing card.
-const CardComponent = ({ card, onDrink, onEquip, onFightBareHands, onFightWithWeapon, canFightWithWeapon, globalDisabled }: CardProps) => {
-  // Helper function for button classes:
+// Styled like a real playing card.
+const CardComponent = ({
+  card,
+  onDrink,
+  onEquip,
+  onFightBareHands,
+  onFightWithWeapon,
+  canFightWithWeapon,
+  globalDisabled,
+}: CardProps) => {
   const buttonClasses = (base: string, disabled: boolean) =>
     `${base} ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'}`
 
   return (
     <div className="w-24 h-32 bg-white rounded-lg border border-gray-300 shadow-md p-2 m-2 flex flex-col justify-between">
-      <div className="text-xl font-bold" style={{ color: ['♦', '♥'].includes(card.suit) ? 'red' : 'black' }}>
+      <div
+        className="text-xl font-bold"
+        style={{ color: ['♦', '♥'].includes(card.suit) ? 'red' : 'black' }}
+      >
         {card.suit} {card.value}
       </div>
       <div className="space-y-1">
         {card.type === 'potion' && (
           <button
-            className={buttonClasses("bg-green-500 text-white text-xs px-2 py-1 rounded", globalDisabled)}
+            className={buttonClasses(
+              'bg-green-500 text-white text-xs px-2 py-1 rounded',
+              globalDisabled
+            )}
             onClick={onDrink}
             disabled={globalDisabled}
           >
@@ -98,7 +161,10 @@ const CardComponent = ({ card, onDrink, onEquip, onFightBareHands, onFightWithWe
         )}
         {card.type === 'weapon' && (
           <button
-            className={buttonClasses("bg-blue-500 text-white text-xs px-2 py-1 rounded", globalDisabled)}
+            className={buttonClasses(
+              'bg-blue-500 text-white text-xs px-2 py-1 rounded',
+              globalDisabled
+            )}
             onClick={onEquip}
             disabled={globalDisabled}
           >
@@ -108,14 +174,20 @@ const CardComponent = ({ card, onDrink, onEquip, onFightBareHands, onFightWithWe
         {card.type === 'monster' && (
           <>
             <button
-              className={buttonClasses("bg-red-500 text-white text-xs px-2 py-1 rounded", globalDisabled)}
+              className={buttonClasses(
+                'bg-red-500 text-white text-xs px-2 py-1 rounded',
+                globalDisabled
+              )}
               onClick={onFightBareHands}
               disabled={globalDisabled}
             >
               Bare Hands
             </button>
             <button
-              className={buttonClasses("bg-purple-500 text-white text-xs px-2 py-1 rounded", globalDisabled || !canFightWithWeapon)}
+              className={buttonClasses(
+                'bg-purple-500 text-white text-xs px-2 py-1 rounded',
+                globalDisabled || !canFightWithWeapon
+              )}
               onClick={onFightWithWeapon}
               disabled={globalDisabled || !canFightWithWeapon}
             >
@@ -128,12 +200,14 @@ const CardComponent = ({ card, onDrink, onEquip, onFightBareHands, onFightWithWe
   )
 }
 
-// A component representing the deck as a card back.
+// Represent the deck as a card back.
 const DeckComponent = ({ deckCount }: { deckCount: number }) => {
   return (
     <div className="w-24 h-32 bg-blue-900 rounded-lg border border-gray-300 shadow-md m-2 flex items-center justify-center">
       {deckCount > 0 ? (
-        <span className="text-white font-bold text-xs text-center">Deck ({deckCount})</span>
+        <span className="text-white font-bold text-xs text-center">
+          Deck ({deckCount})
+        </span>
       ) : (
         <span className="text-white font-bold text-xs">Empty</span>
       )}
@@ -142,30 +216,74 @@ const DeckComponent = ({ deckCount }: { deckCount: number }) => {
 }
 
 function App() {
-  // Game states
   const [deck, setDeck] = useState<Deck>([])
   const [room, setRoom] = useState<Deck>([])
   const [health, setHealth] = useState<number>(20)
   const [equippedWeapon, setEquippedWeapon] = useState<Weapon | null>(null)
   const [ranAwayLastRoom, setRanAwayLastRoom] = useState<boolean>(false)
   const [gameOver, setGameOver] = useState<boolean>(false)
-  const [history, setHistory] = useState<GameState[]>([])
+  const [won, setWon] = useState<boolean>(false)
+  const [history, setHistory] = useState<GameStateHistory[]>([])
   const [roomAnimationKey, setRoomAnimationKey] = useState<number>(0)
+  const [gameStarted, setGameStarted] = useState<boolean>(false)
 
-  // Save current state to history
+  // Use a ref to prevent saving on the initial mount.
+  const isInitialMount = useRef(true)
+
+  // Load saved state on mount (if any)
+  useEffect(() => {
+    const savedState = localStorage.getItem('cardGameState')
+    if (savedState) {
+      const parsed = JSON.parse(savedState) as GameState
+      console.log("Loading state:", parsed)
+      setDeck(parsed.deck)
+      setRoom(parsed.room)
+      setHealth(parsed.health)
+      setEquippedWeapon(parsed.equippedWeapon)
+      setRanAwayLastRoom(parsed.ranAwayLastRoom)
+      setGameOver(parsed.gameOver)
+      setWon(parsed.won)
+      setHistory(parsed.history || [])
+      setGameStarted(parsed.gameStarted)
+    }
+  }, [])
+
+  // Save state to localStorage whenever key values change, but skip the initial mount.
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false
+      return
+    }
+    const stateToSave: GameState = {
+      deck,
+      room,
+      health,
+      equippedWeapon,
+      ranAwayLastRoom,
+      gameOver,
+      won,
+      history,
+      gameStarted,
+    }
+    console.log("Saving state:", stateToSave)
+    localStorage.setItem('cardGameState', JSON.stringify(stateToSave))
+  }, [deck, room, health, equippedWeapon, ranAwayLastRoom, gameOver, won, history, gameStarted])
+
+  // Save current state snapshot to history.
   const saveState = () => {
-    const stateSnapshot: GameState = {
+    const stateSnapshot: GameStateHistory = {
       deck: [...deck],
       room: [...room],
       health,
       equippedWeapon: equippedWeapon ? { ...equippedWeapon } : null,
       ranAwayLastRoom,
-      gameOver
+      gameOver,
+      won,
     }
-    setHistory(prev => [...prev, stateSnapshot])
+    setHistory((prev) => [...prev, stateSnapshot])
   }
 
-  // Undo the last action
+  // Undo the last action.
   const handleUndo = () => {
     if (history.length === 0) return
     const previousState = history[history.length - 1]
@@ -175,33 +293,27 @@ function App() {
     setEquippedWeapon(previousState.equippedWeapon)
     setRanAwayLastRoom(previousState.ranAwayLastRoom)
     setGameOver(previousState.gameOver)
-    setHistory(prev => prev.slice(0, prev.length - 1))
+    setWon(previousState.won)
+    setHistory((prev) => prev.slice(0, prev.length - 1))
   }
 
-  // Start a new game (reset state)
+  // Start a new game.
   const handleNewGame = () => {
     const newDeck = createDeck()
-    setDeck(newDeck)
     const roomSize = Math.min(4, newDeck.length)
-    setRoom(newDeck.slice(0, roomSize))
     setDeck(newDeck.slice(roomSize))
+    setRoom(newDeck.slice(0, roomSize))
     setHealth(20)
     setEquippedWeapon(null)
     setRanAwayLastRoom(false)
     setGameOver(false)
+    setWon(false)
     setHistory([])
-    setRoomAnimationKey(prev => prev + 1)
+    setRoomAnimationKey((prev) => prev + 1)
+    setGameStarted(true)
   }
 
-  // On mount, initialize the deck and draw the first room.
-  useEffect(() => {
-    handleNewGame()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  // Draw a new room when the player clicks "Next Room".
-  // If exactly one card remains in the current room, keep it and draw 3 new cards.
-  // Otherwise, discard the current room and draw a full set of 4 new cards.
+  // Draw the next room.
   const handleNextRoom = () => {
     if (gameOver) return
     saveState()
@@ -218,27 +330,25 @@ function App() {
     }
     setRoom(newRoom)
     setRanAwayLastRoom(false)
-    setRoomAnimationKey(prev => prev + 1) // trigger animation
+    setRoomAnimationKey((prev) => prev + 1)
   }
 
-  // Remove a card from the current room by its id.
+  // Remove a card from the room.
   const removeCardFromRoom = (cardId: number) => {
-    setRoom(prev => prev.filter(card => card.id !== cardId))
+    setRoom((prev) => prev.filter((card) => card.id !== cardId))
   }
 
-  // Action handlers for each card type.
+  // Action handlers.
   const handleDrink = (card: Card) => {
     if (gameOver) return
     saveState()
-    const newHealth = Math.min(20, health + card.numericValue)
-    setHealth(newHealth)
+    setHealth(Math.min(20, health + card.numericValue))
     removeCardFromRoom(card.id)
   }
 
   const handleEquip = (card: Card) => {
     if (gameOver) return
     saveState()
-    // Equip the weapon and reset any previous weapon usage.
     setEquippedWeapon({ value: card.numericValue, lastUsedAttack: null })
     removeCardFromRoom(card.id)
   }
@@ -246,48 +356,70 @@ function App() {
   const handleFightBareHands = (card: Card) => {
     if (gameOver) return
     saveState()
-    const damage = card.numericValue
-    setHealth(prev => prev - damage)
+    setHealth((prev) => prev - card.numericValue)
     removeCardFromRoom(card.id)
   }
 
   const handleFightWithWeapon = (card: Card) => {
     if (gameOver || !equippedWeapon) return
-    // Enforce that the new monster is strictly weaker than the previous one killed.
-    if (equippedWeapon.lastUsedAttack !== null && card.numericValue >= equippedWeapon.lastUsedAttack) {
-      return // Invalid move; button should be disabled.
+    if (
+      equippedWeapon.lastUsedAttack !== null &&
+      card.numericValue >= equippedWeapon.lastUsedAttack
+    ) {
+      return
     }
     saveState()
-    const damage = Math.max(0, card.numericValue - equippedWeapon.value)
-    setHealth(prev => prev - damage)
+    setHealth((prev) => prev - Math.max(0, card.numericValue - equippedWeapon.value))
     setEquippedWeapon({ ...equippedWeapon, lastUsedAttack: card.numericValue })
     removeCardFromRoom(card.id)
   }
 
-  // Forfeit the room (run away) and append the remaining cards to the bottom of the deck.
   const handleForfeit = () => {
     if (gameOver || ranAwayLastRoom) return
     saveState()
     const shuffledRoom = shuffle([...room])
-    setDeck(prev => [...prev, ...shuffledRoom])
+    setDeck((prev) => [...prev, ...shuffledRoom])
     setRoom([])
     setRanAwayLastRoom(true)
   }
 
-  // Check for game over.
+  // Check win condition: only if game has started.
   useEffect(() => {
-    if (health <= 0) {
+    if (
+      gameStarted &&
+      !gameOver &&
+      health > 0 &&
+      deck.length === 0 &&
+      room.length === 0
+    ) {
+      setWon(true)
       setGameOver(true)
     }
-  }, [health])
+  }, [gameStarted, deck, room, health, gameOver])
 
-  // Global disabled state for card actions when game over.
+  // Global disabled state.
   const globalDisabled = gameOver
+
+  // If the game hasn't started yet, show a "Start Game" screen.
+  if (!gameStarted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <button
+          className="px-6 py-3 rounded bg-green-500 hover:bg-green-600 text-white text-xl"
+          onClick={handleNewGame}
+        >
+          Start Game
+        </button>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen p-4 bg-gray-100">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-4xl font-bold text-center mb-6">Card Game</h1>
+        {/* Confetti for win */}
+        {won && <Confetti width={window.innerWidth} height={window.innerHeight} />}
         {/* Status Bar */}
         <div className="flex justify-between items-center mb-4">
           <div>
@@ -304,7 +436,8 @@ function App() {
               <div>
                 Equipped Weapon: {equippedWeapon.value} <br />
                 <span className="text-sm">
-                  Last Monster Killed: {equippedWeapon.lastUsedAttack !== null ? equippedWeapon.lastUsedAttack : 'None'}
+                  Last Monster Killed:{' '}
+                  {equippedWeapon.lastUsedAttack !== null ? equippedWeapon.lastUsedAttack : 'None'}
                 </span>
               </div>
             ) : (
@@ -319,7 +452,7 @@ function App() {
           <DeckComponent deckCount={deck.length} />
           {/* Room Cards with animation */}
           <div key={roomAnimationKey} className="flex flex-row flex-wrap animate-slideIn">
-            {room.map(card => (
+            {room.map((card) => (
               <CardComponent
                 key={card.id}
                 card={card}
@@ -340,21 +473,30 @@ function App() {
         {/* Action Buttons */}
         <div className="flex justify-center space-x-4 mt-6">
           <button
-            className={`px-4 py-2 rounded ${ranAwayLastRoom ? 'bg-gray-400' : 'bg-red-500 hover:bg-red-600'} text-white ${gameOver ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`px-4 py-2 rounded ${ranAwayLastRoom
+                ? 'bg-gray-400'
+                : 'bg-red-500 hover:bg-red-600'
+              } text-white ${gameOver ? 'opacity-50 cursor-not-allowed' : ''}`}
             onClick={handleForfeit}
             disabled={ranAwayLastRoom || gameOver}
           >
             Forfeit Room
           </button>
           <button
-            className={`px-4 py-2 rounded ${(room.length === 0 || room.length === 1) ? 'bg-blue-500 hover:bg-blue-600' : 'bg-gray-400'} text-white ${gameOver ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`px-4 py-2 rounded ${room.length === 0 || room.length === 1
+                ? 'bg-blue-500 hover:bg-blue-600'
+                : 'bg-gray-400'
+              } text-white ${gameOver ? 'opacity-50 cursor-not-allowed' : ''}`}
             onClick={handleNextRoom}
             disabled={!(room.length === 0 || room.length === 1) || gameOver}
           >
             Next Room
           </button>
           <button
-            className={`px-4 py-2 rounded ${history.length > 0 ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-gray-400'} text-white ${gameOver ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`px-4 py-2 rounded ${history.length > 0
+                ? 'bg-yellow-500 hover:bg-yellow-600'
+                : 'bg-gray-400'
+              } text-white ${gameOver ? 'opacity-50 cursor-not-allowed' : ''}`}
             onClick={handleUndo}
             disabled={history.length === 0}
           >
@@ -370,8 +512,12 @@ function App() {
           )}
         </div>
         {gameOver && (
-          <div className="text-center text-3xl font-bold text-red-600 mt-6">
-            Game Over!
+          <div className="text-center text-3xl font-bold mt-6">
+            {won ? (
+              <span className="text-green-600">You Win!</span>
+            ) : (
+              <span className="text-red-600">Game Over!</span>
+            )}
           </div>
         )}
       </div>
