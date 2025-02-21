@@ -1,5 +1,5 @@
 // Represent the deck as a card back.
-const DeckComponent = ({ deckCount }: { deckCount: number }) => {
+const Deck = ({ deckCount }: { deckCount: number }) => {
   return (
     <div className="w-36 h-48 bg-blue-900 rounded-lg border border-gray-300 shadow-md flex items-center justify-center">
       {deckCount > 0 ? (
@@ -12,4 +12,4 @@ const DeckComponent = ({ deckCount }: { deckCount: number }) => {
     </div>
   );
 };
-export default DeckComponent;
+export default Deck;

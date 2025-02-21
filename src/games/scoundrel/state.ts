@@ -1,33 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
 
+import { CardValue, Suit } from '../../types';
+import { shuffle } from '../../utils/shuffle';
 import {
-  Card,
   CardType,
-  CardValue,
   Deck,
   GameState,
   GameStateHistory,
-  Suit,
+  ScoundrelCard,
   Weapon,
 } from './types';
 
-const storageKey = 'cardGameState-2';
-
-// Utility: shuffle an array in-place using Fisher-Yates algorithm
-function shuffle(array: Deck) {
-  let currentIndex = array.length,
-    randomIndex;
-
-  while (currentIndex !== 0) {
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex--;
-    [array[currentIndex], array[randomIndex]] = [
-      array[randomIndex],
-      array[currentIndex],
-    ];
-  }
-  return array;
-}
+const storageKey = 'scoundrel-game-state';
 
 // Create a new deck based on your rules.
 function createDeck(): Deck {
@@ -217,28 +201,28 @@ const useGameState = () => {
     setRoom(prev => prev.filter(card => card.id !== cardId));
   };
 
-  const handleDrink = (card: Card) => {
+  const handleDrink = (card: ScoundrelCard) => {
     if (gameOver) return;
     saveState();
     setHealth(Math.min(20, health + card.numericValue));
     removeCardFromRoom(card.id);
   };
 
-  const handleEquip = (card: Card) => {
+  const handleEquip = (card: ScoundrelCard) => {
     if (gameOver) return;
     saveState();
     setEquippedWeapon({ ...card, lastUsedAttack: null });
     removeCardFromRoom(card.id);
   };
 
-  const handleFightBareHands = (card: Card) => {
+  const handleFightBareHands = (card: ScoundrelCard) => {
     if (gameOver) return;
     saveState();
     setHealth(prev => prev - card.numericValue);
     removeCardFromRoom(card.id);
   };
 
-  const handleFightWithWeapon = (card: Card) => {
+  const handleFightWithWeapon = (card: ScoundrelCard) => {
     if (gameOver || !equippedWeapon) return;
     if (
       equippedWeapon.lastUsedAttack !== null &&

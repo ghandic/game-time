@@ -1,17 +1,17 @@
-import { Card } from '../types';
+import Card from '../../../components/card';
+import { ScoundrelCard } from '../types';
 
-type CardProps = {
-  card: Card;
+type ScoundrelCardProps = {
   onDrink: () => void;
   onEquip: () => void;
   onFightBareHands: () => void;
   onFightWithWeapon: () => void;
   canFightWithWeapon: boolean | null;
   globalDisabled: boolean;
+  card: ScoundrelCard;
 };
 
-// Styled like a real playing card.
-const CardComponent = ({
+const ScoundrelCardComponent = ({
   card,
   onDrink,
   onEquip,
@@ -19,18 +19,12 @@ const CardComponent = ({
   onFightWithWeapon,
   canFightWithWeapon,
   globalDisabled,
-}: CardProps) => {
+}: ScoundrelCardProps) => {
   const buttonClasses = (base: string, disabled: boolean) =>
     `${base} ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'}`;
 
   return (
-    <div className="w-36 h-48 bg-white rounded-lg border border-gray-300 shadow-md p-2 flex flex-col justify-between">
-      <div
-        className="text-xl font-bold"
-        style={{ color: ['♦', '♥'].includes(card.suit) ? 'red' : 'black' }}
-      >
-        {card.suit} {card.value}
-      </div>
+    <Card card={card}>
       <div className="flex flex-col gap-1 items-center justify-center">
         {card.type === 'potion' && (
           <button
@@ -82,14 +76,8 @@ const CardComponent = ({
           </>
         )}
       </div>
-      <div
-        className="text-xl font-bold text-right"
-        style={{ color: ['♦', '♥'].includes(card.suit) ? 'red' : 'black' }}
-      >
-        {card.suit} {card.value}
-      </div>
-    </div>
+    </Card>
   );
 };
 
-export default CardComponent;
+export default ScoundrelCardComponent;

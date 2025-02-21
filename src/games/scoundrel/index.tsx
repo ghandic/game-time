@@ -1,7 +1,7 @@
 import Confetti from 'react-confetti';
 
-import CardComponent from './components/card';
-import DeckComponent from './components/deck';
+import DeckComponent from '../../components/deck';
+import ScoundrelCardComponent from './components/card';
 import useGameState from './state';
 
 function Scoundrel() {
@@ -110,7 +110,7 @@ function Scoundrel() {
             className="flex flex-row flex-wrap animate-slideIn  gap-2"
           >
             {room.map(card => (
-              <CardComponent
+              <ScoundrelCardComponent
                 key={card.id}
                 card={card}
                 onDrink={() => handleDrink(card)}
