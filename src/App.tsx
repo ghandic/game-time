@@ -75,21 +75,21 @@ type CardProps = {
   globalDisabled: boolean
 }
 
-// A card component showing its suit, value, and available action buttons.
+// A card component styled like a real playing card.
 const CardComponent = ({ card, onDrink, onEquip, onFightBareHands, onFightWithWeapon, canFightWithWeapon, globalDisabled }: CardProps) => {
   // Helper function for button classes:
   const buttonClasses = (base: string, disabled: boolean) =>
     `${base} ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'}`
 
   return (
-    <div className="bg-white rounded shadow p-4 m-2">
-      <div className="text-2xl font-bold" style={{ color: ['♦', '♥'].includes(card.suit) ? 'red' : 'black' }}>
+    <div className="w-24 h-32 bg-white rounded-lg border border-gray-300 shadow-md p-2 m-2 flex flex-col justify-between">
+      <div className="text-xl font-bold" style={{ color: ['♦', '♥'].includes(card.suit) ? 'red' : 'black' }}>
         {card.suit} {card.value}
       </div>
-      <div className="mt-2 space-x-2">
+      <div className="space-y-1">
         {card.type === 'potion' && (
           <button
-            className={buttonClasses("bg-green-500 text-white px-3 py-1 rounded", globalDisabled)}
+            className={buttonClasses("bg-green-500 text-white text-xs px-2 py-1 rounded", globalDisabled)}
             onClick={onDrink}
             disabled={globalDisabled}
           >
@@ -98,7 +98,7 @@ const CardComponent = ({ card, onDrink, onEquip, onFightBareHands, onFightWithWe
         )}
         {card.type === 'weapon' && (
           <button
-            className={buttonClasses("bg-blue-500 text-white px-3 py-1 rounded", globalDisabled)}
+            className={buttonClasses("bg-blue-500 text-white text-xs px-2 py-1 rounded", globalDisabled)}
             onClick={onEquip}
             disabled={globalDisabled}
           >
@@ -108,22 +108,35 @@ const CardComponent = ({ card, onDrink, onEquip, onFightBareHands, onFightWithWe
         {card.type === 'monster' && (
           <>
             <button
-              className={buttonClasses("bg-red-500 text-white px-3 py-1 rounded", globalDisabled)}
+              className={buttonClasses("bg-red-500 text-white text-xs px-2 py-1 rounded", globalDisabled)}
               onClick={onFightBareHands}
               disabled={globalDisabled}
             >
-              Fight (Bare Hands)
+              Bare Hands
             </button>
             <button
-              className={buttonClasses("bg-purple-500 text-white px-3 py-1 rounded", globalDisabled || !canFightWithWeapon)}
+              className={buttonClasses("bg-purple-500 text-white text-xs px-2 py-1 rounded", globalDisabled || !canFightWithWeapon)}
               onClick={onFightWithWeapon}
               disabled={globalDisabled || !canFightWithWeapon}
             >
-              Fight (Weapon)
+              With Weapon
             </button>
           </>
         )}
       </div>
+    </div>
+  )
+}
+
+// A component representing the deck as a card back.
+const DeckComponent = ({ deckCount }: { deckCount: number }) => {
+  return (
+    <div className="w-24 h-32 bg-blue-900 rounded-lg border border-gray-300 shadow-md m-2 flex items-center justify-center">
+      {deckCount > 0 ? (
+        <span className="text-white font-bold text-xs text-center">Deck ({deckCount})</span>
+      ) : (
+        <span className="text-white font-bold text-xs">Empty</span>
+      )}
     </div>
   )
 }
@@ -137,6 +150,7 @@ function App() {
   const [ranAwayLastRoom, setRanAwayLastRoom] = useState<boolean>(false)
   const [gameOver, setGameOver] = useState<boolean>(false)
   const [history, setHistory] = useState<GameState[]>([])
+  const [roomAnimationKey, setRoomAnimationKey] = useState<number>(0)
 
   // Save current state to history
   const saveState = () => {
@@ -164,20 +178,26 @@ function App() {
     setHistory(prev => prev.slice(0, prev.length - 1))
   }
 
-  // On mount, initialize the deck and draw the first room.
-  useEffect(() => {
+  // Start a new game (reset state)
+  const handleNewGame = () => {
     const newDeck = createDeck()
     setDeck(newDeck)
-    drawInitialRoom(newDeck)
-  }, [])
-
-  // Draw the initial room (always 4 cards).
-  const drawInitialRoom = (currentDeck: Deck) => {
-    if (currentDeck.length === 0) return
-    const roomSize = Math.min(4, currentDeck.length)
-    setRoom(currentDeck.slice(0, roomSize))
-    setDeck(currentDeck.slice(roomSize))
+    const roomSize = Math.min(4, newDeck.length)
+    setRoom(newDeck.slice(0, roomSize))
+    setDeck(newDeck.slice(roomSize))
+    setHealth(20)
+    setEquippedWeapon(null)
+    setRanAwayLastRoom(false)
+    setGameOver(false)
+    setHistory([])
+    setRoomAnimationKey(prev => prev + 1)
   }
+
+  // On mount, initialize the deck and draw the first room.
+  useEffect(() => {
+    handleNewGame()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Draw a new room when the player clicks "Next Room".
   // If exactly one card remains in the current room, keep it and draw 3 new cards.
@@ -198,6 +218,7 @@ function App() {
     }
     setRoom(newRoom)
     setRanAwayLastRoom(false)
+    setRoomAnimationKey(prev => prev + 1) // trigger animation
   }
 
   // Remove a card from the current room by its id.
@@ -232,15 +253,13 @@ function App() {
 
   const handleFightWithWeapon = (card: Card) => {
     if (gameOver || !equippedWeapon) return
-    // If the weapon has been used, enforce that the new monster is strictly weaker.
+    // Enforce that the new monster is strictly weaker than the previous one killed.
     if (equippedWeapon.lastUsedAttack !== null && card.numericValue >= equippedWeapon.lastUsedAttack) {
       return // Invalid move; button should be disabled.
     }
     saveState()
-    // Calculate damage: monster attack reduced by the weapon's value (minimum 0).
     const damage = Math.max(0, card.numericValue - equippedWeapon.value)
     setHealth(prev => prev - damage)
-    // Update the weapon's last used attack so only weaker monsters can be fought next.
     setEquippedWeapon({ ...equippedWeapon, lastUsedAttack: card.numericValue })
     removeCardFromRoom(card.id)
   }
@@ -266,13 +285,13 @@ function App() {
   const globalDisabled = gameOver
 
   return (
-    <div className="min-h-screen p-4">
-      <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold text-center mb-4">Card Game</h1>
+    <div className="min-h-screen p-4 bg-gray-100">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-4xl font-bold text-center mb-6">Card Game</h1>
+        {/* Status Bar */}
         <div className="flex justify-between items-center mb-4">
-          {/* Health Bar */}
           <div>
-            <div className="mb-1">Health: {health} / 20</div>
+            <div className="mb-1 text-lg">Health: {health} / 20</div>
             <div className="w-48 h-4 bg-gray-300 rounded">
               <div
                 className="h-4 bg-green-500 rounded"
@@ -280,45 +299,46 @@ function App() {
               ></div>
             </div>
           </div>
-          {/* Equipped Weapon Info */}
-          <div>
+          <div className="text-lg">
             {equippedWeapon ? (
               <div>
-                Equipped Weapon: {equippedWeapon.value}
-                <div className="text-sm">
-                  Last Monster Killed:{' '}
-                  {equippedWeapon.lastUsedAttack !== null ? equippedWeapon.lastUsedAttack : 'None'}
-                </div>
+                Equipped Weapon: {equippedWeapon.value} <br />
+                <span className="text-sm">
+                  Last Monster Killed: {equippedWeapon.lastUsedAttack !== null ? equippedWeapon.lastUsedAttack : 'None'}
+                </span>
               </div>
             ) : (
               <div>No Weapon Equipped</div>
             )}
           </div>
-          {/* Deck Count */}
-          <div>Deck: {deck.length} cards</div>
+          <div className="text-lg">Deck: {deck.length} cards</div>
         </div>
-        {/* Room Cards */}
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          {room.map(card => (
-            <CardComponent
-              key={card.id}
-              card={card}
-              onDrink={() => handleDrink(card)}
-              onEquip={() => handleEquip(card)}
-              onFightBareHands={() => handleFightBareHands(card)}
-              onFightWithWeapon={() => handleFightWithWeapon(card)}
-              // For monsters, only allow fighting with weapon if no previous weapon use or if this monster is weaker.
-              canFightWithWeapon={
-                equippedWeapon &&
-                (equippedWeapon.lastUsedAttack === null ||
-                  card.numericValue < equippedWeapon.lastUsedAttack)
-              }
-              globalDisabled={globalDisabled}
-            />
-          ))}
+        {/* Main Play Area */}
+        <div className="flex items-start">
+          {/* Deck */}
+          <DeckComponent deckCount={deck.length} />
+          {/* Room Cards with animation */}
+          <div key={roomAnimationKey} className="flex flex-row flex-wrap animate-slideIn">
+            {room.map(card => (
+              <CardComponent
+                key={card.id}
+                card={card}
+                onDrink={() => handleDrink(card)}
+                onEquip={() => handleEquip(card)}
+                onFightBareHands={() => handleFightBareHands(card)}
+                onFightWithWeapon={() => handleFightWithWeapon(card)}
+                canFightWithWeapon={
+                  equippedWeapon &&
+                  (equippedWeapon.lastUsedAttack === null ||
+                    card.numericValue < equippedWeapon.lastUsedAttack)
+                }
+                globalDisabled={globalDisabled}
+              />
+            ))}
+          </div>
         </div>
         {/* Action Buttons */}
-        <div className="flex justify-center space-x-4 mb-4">
+        <div className="flex justify-center space-x-4 mt-6">
           <button
             className={`px-4 py-2 rounded ${ranAwayLastRoom ? 'bg-gray-400' : 'bg-red-500 hover:bg-red-600'} text-white ${gameOver ? 'opacity-50 cursor-not-allowed' : ''}`}
             onClick={handleForfeit}
@@ -326,7 +346,6 @@ function App() {
           >
             Forfeit Room
           </button>
-          {/* Next Room button is enabled only when the room is either empty or has exactly one card. */}
           <button
             className={`px-4 py-2 rounded ${(room.length === 0 || room.length === 1) ? 'bg-blue-500 hover:bg-blue-600' : 'bg-gray-400'} text-white ${gameOver ? 'opacity-50 cursor-not-allowed' : ''}`}
             onClick={handleNextRoom}
@@ -334,7 +353,6 @@ function App() {
           >
             Next Room
           </button>
-          {/* Undo Button */}
           <button
             className={`px-4 py-2 rounded ${history.length > 0 ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-gray-400'} text-white ${gameOver ? 'opacity-50 cursor-not-allowed' : ''}`}
             onClick={handleUndo}
@@ -342,10 +360,17 @@ function App() {
           >
             Undo
           </button>
+          {gameOver && (
+            <button
+              className="px-4 py-2 rounded bg-green-500 hover:bg-green-600 text-white"
+              onClick={handleNewGame}
+            >
+              New Game
+            </button>
+          )}
         </div>
-        {/* Game Over Message */}
         {gameOver && (
-          <div className="text-center text-2xl font-bold text-red-600 mt-4">
+          <div className="text-center text-3xl font-bold text-red-600 mt-6">
             Game Over!
           </div>
         )}
