@@ -1,7 +1,7 @@
-import Scoundrel from "./games/scoundrel"
+import Scoundrel from './games/scoundrel';
 
 function App() {
-  return <Scoundrel />
+  return <Scoundrel />;
 }
 
-export default App
+export default App;

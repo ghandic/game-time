@@ -1,5 +1,5 @@
-export type Suit = '♠' | '♣' | '♥' | '♦'
-export type CardType = 'monster' | 'potion' | 'weapon'
+export type Suit = '♠' | '♣' | '♥' | '♦';
+export type CardType = 'monster' | 'potion' | 'weapon';
 export type CardValue =
   | '2'
   | '3'
@@ -13,38 +13,38 @@ export type CardValue =
   | 'J'
   | 'Q'
   | 'K'
-  | 'Ace'
+  | 'Ace';
 export type Card = {
-  id: number
-  suit: Suit
-  value: CardValue
-  numericValue: number
-  type: CardType
-}
-export type Deck = Card[]
+  id: number;
+  suit: Suit;
+  value: CardValue;
+  numericValue: number;
+  type: CardType;
+};
+export type Deck = Card[];
 
-export type Weapon = Card & { lastUsedAttack: Card | null }
+export type Weapon = Card & { lastUsedAttack: Card | null };
 
 export interface GameState {
-  deck: Deck
-  room: Deck
-  health: number
-  equippedWeapon: Weapon | null
-  currentRoomNumber: number
-  lastRanAwayRoomNumber: number
-  gameOver: boolean
-  won: boolean
-  history: GameStateHistory[]
-  gameStarted: boolean
+  deck: Deck;
+  room: Deck;
+  health: number;
+  equippedWeapon: Weapon | null;
+  currentRoomNumber: number;
+  lastRanAwayRoomNumber: number;
+  gameOver: boolean;
+  won: boolean;
+  history: GameStateHistory[];
+  gameStarted: boolean;
 }
 
 export type GameStateHistory = {
-  deck: Deck
-  room: Deck
-  health: number
-  equippedWeapon: Weapon | null
-  currentRoomNumber: number
-  lastRanAwayRoomNumber: number
-  gameOver: boolean
-  won: boolean
-}
+  deck: Deck;
+  room: Deck;
+  health: number;
+  equippedWeapon: Weapon | null;
+  currentRoomNumber: number;
+  lastRanAwayRoomNumber: number;
+  gameOver: boolean;
+  won: boolean;
+};
