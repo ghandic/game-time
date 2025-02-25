@@ -267,6 +267,13 @@ const useGameState = () => {
     }
   }, [gameStarted, deck, room, health, gameOver]);
 
+  // Check lose condition: only if game has started.
+  useEffect(() => {
+    if (gameStarted && !gameOver && health <= 0) {
+      setGameOver(true);
+    }
+  }, [gameStarted, health, gameOver]);
+
   // Global disabled state.
   const globalDisabled = gameOver;
 

@@ -214,7 +214,7 @@ function Scoundrel() {
           className={`px-4 py-2 ${history.length > 0
             ? 'bg-yellow-500 hover:bg-yellow-600'
             : 'bg-gray-400'
-            } text-white ${gameOver ? 'opacity-50 cursor-not-allowed' : ''}`}
+            } text-white`}
           onClick={handleUndo}
           disabled={history.length === 0}
         >
