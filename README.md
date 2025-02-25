@@ -1,6 +1,6 @@
 # Game Time
 
-Check out the games at www.demo.com
+Check out the games at [ghandic.github.io/game-time](https://ghandic.github.io/game-time/)
 
 ## Ideas
 
