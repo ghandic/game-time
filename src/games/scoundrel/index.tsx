@@ -252,7 +252,7 @@ function Attribution({ authors = [], description = "", link = "" }: { authors?: 
         </p>
         <h2 className='text-md font-bold pt-2'>Creators</h2>
         <p>
-          This game was build by Andy Challis
+          This game was built by Andy Challis
           and designed by <a href={link} className='text-blue-400' target='_blank'>{authors.join(", ")}.</a>
         </p>
       </TooltipContent>
