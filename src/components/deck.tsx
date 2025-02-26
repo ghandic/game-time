@@ -2,7 +2,7 @@
 const Deck = () => {
   return (
     <div  >
-      <img className="w-36 h-48" src="/images/cards/back_red.png" />
+      <img className="w-32 h-44 md:w-36 md:h-48" src="/images/cards/back_red.png" />
     </div>
   );
 };

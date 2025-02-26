@@ -25,12 +25,12 @@ Scoundrel is a challenging and strategic solo roguelite card game where you figh
 - You start on 20 health and you cannot go above 20 health, if you fall below 20 then you die
 - The number on the monsters represents their attack 2-10, J=11, Q=12, K=13, Ace=14
 - A room (4 cards) is drawn from the deck, you can draw your next room by either:
-    - Getting the room down to 1 or less cards by; drinking health potions, killing monsters or equipping weapons
-    - Running away from the room - you cannot do this two rooms in a row. When you run away from the room the remaining cards in the room are shuffled and put to the back of the deck
+  - Getting the room down to 1 or less cards by; drinking health potions, killing monsters or equipping weapons
+  - Running away from the room - you cannot do this two rooms in a row. When you run away from the room the remaining cards in the room are shuffled and put to the back of the deck
 - You can fight a monster either:
-    - with your bare hands (you will take all of the damage equal to the number on the card)
-    - With a weapon, which reduces the attack of the monster equal to the difference
-    - Note: When a weapon has been used, you can only kill weaker monsters than the one already killed with the weapon, eg if you killed a 5♣️ you could not kill a 7♣️ or a 5♠️, only 2-4♠️♣️
+  - with your bare hands (you will take all of the damage equal to the number on the card)
+  - With a weapon, which reduces the attack of the monster equal to the difference
+  - Note: When a weapon has been used, you can only kill weaker monsters than the one already killed with the weapon, eg if you killed a 5♣️ you could not kill a 7♣️ or a 5♠️, only 2-4♠️♣️
 
 ## Credits
 
@@ -87,7 +87,7 @@ function Scoundrel() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className='flex flex-row justify-center gap-3 items-center mb-6'>
+      <div className='flex flex-col md:flex-row justify-center gap-3 items-center mb-6'>
         <div className='relative'>
           <h1 className="text-4xl font-bold ">Scoundrel</h1>
           <div className='absolute top-1 -left-10'><Dialog>
@@ -130,9 +130,9 @@ function Scoundrel() {
       )}
 
       {/* Status Bar */}
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex flex-col-reverse md:flex-row justify-between md:items-center mb-4">
         {/* Health and Deck Count */}
-        <div className='flex flex-row gap-1 w-48 items-center'>
+        <div className='flex flex-row gap-1 w-48 items-center mt-4 md:mt-0'>
           <div className='flex flex-row gap-1 items-center px-2'>
             <div className="w-5 h-6 rounded bg-red-600 " />
             <div
@@ -157,7 +157,7 @@ function Scoundrel() {
         </div>
 
         {/* Equipped Weapon */}
-        <div className="w-20">
+        <div className="w-20 mt-4 md:mt-0">
           <div className='flex flex-row gap-2'>
 
             {equippedWeapon ? (
@@ -197,7 +197,7 @@ function Scoundrel() {
           </div>
         </div>
         {/* Action Buttons */}
-        <div className="flex justify-left space-x-1">
+        <div className="flex justify-left space-x-1 ">
           <Button
             className={`px-4 py-2 ${history.length > 0
               ? 'bg-yellow-500 hover:bg-yellow-600'
@@ -217,34 +217,35 @@ function Scoundrel() {
         </div>
       </div>
       {/* Main Play Area */}
-      <div className="flex items-start gap-2">
+      <div className="flex flex-col md:flex-row items-start gap-2">
         {/* Deck */}
-        <div className='flex flex-col gap-2 items-center'>
-          <DeckComponent />
-          <div className='flex flex-row gap-2'><Button
-            className={`${unableToForfeit ? 'bg-gray-400' : 'bg-yellow-500 hover:bg-yellow-600'
-              }  ${gameOver ? 'opacity-50 cursor-not-allowed' : ''}`}
-            onClick={handleForfeit}
-            disabled={unableToForfeit || gameOver}
-          >
-            Skip
-          </Button>
-            <Button
-              className={`px-4 py-2 ${room.length === 0 || room.length === 1
-                ? 'bg-blue-500 hover:bg-blue-600'
-                : 'bg-gray-400'
-                } text-white ${gameOver ? 'opacity-50 cursor-not-allowed' : ''}`}
-              onClick={handleNextRoom}
-              disabled={!(room.length === 0 || room.length === 1) || gameOver}
-            >
-              Next
-            </Button></div>
-        </div>
+
         {/* Room Cards with animation */}
         <div
           key={roomAnimationKey}
-          className="flex flex-row flex-wrap animate-slideIn gap-2"
+          className="flex flex-row flex-wrap  gap-2"
         >
+          <div className='flex flex-col gap-2 items-center'>
+            <DeckComponent />
+            <div className='flex flex-row gap-2'><Button
+              className={`${unableToForfeit ? 'bg-gray-400' : 'bg-yellow-500 hover:bg-yellow-600'
+                }  ${gameOver ? 'opacity-50 cursor-not-allowed' : ''}`}
+              onClick={handleForfeit}
+              disabled={unableToForfeit || gameOver}
+            >
+              Skip
+            </Button>
+              <Button
+                className={`${room.length === 0 || room.length === 1
+                  ? 'bg-blue-500 hover:bg-blue-600'
+                  : 'bg-gray-400'
+                  } text-white ${gameOver ? 'opacity-50 cursor-not-allowed' : ''}`}
+                onClick={handleNextRoom}
+                disabled={!(room.length === 0 || room.length === 1) || gameOver}
+              >
+                Next
+              </Button></div>
+          </div>
           {room.map(card => (
             <ScoundrelCardComponent
               key={card.id}
@@ -283,7 +284,5 @@ function Scoundrel() {
     </div>
   );
 }
-
-
 
 export default Scoundrel;

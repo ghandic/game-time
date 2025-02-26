@@ -34,8 +34,8 @@ const cardValueToImageNumber = (value: string) => {
 // Styled like a real playing card.
 const Card = ({ card, children }: CardProps) => {
   return (
-    <div>
-      <img className="w-36 h-48 shadow-md" src={`/images/cards/${cardValueToImageNumber(card.value)}${emojiToLetter(card.suit)}.png`} />
+    <div className='animate-slideIn'>
+      <img className="w-32 h-44 md:w-36 md:h-48 shadow-md" src={`/images/cards/${cardValueToImageNumber(card.value)}${emojiToLetter(card.suit)}.png`} />
       {children}
     </div>
   );
