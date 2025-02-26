@@ -16,8 +16,6 @@ type ScoundrelCardProps = {
   card: ScoundrelCard;
 };
 
-
-
 const ScoundrelCardComponent = ({
   card,
   onDrink,
@@ -87,12 +85,10 @@ const ScoundrelCardComponent = ({
   );
 };
 
-export const PlaceholderCard = (props: JSX.IntrinsicAttributes & ClassAttributes<HTMLDivElement> & HTMLAttributes<HTMLDivElement>) => (
-  <div
-    className="w-36 h-48"
-    {...props}
-  >
-  </div>
-)
+export const PlaceholderCard = (
+  props: JSX.IntrinsicAttributes &
+    ClassAttributes<HTMLDivElement> &
+    HTMLAttributes<HTMLDivElement>,
+) => <div className="w-36 h-48" {...props}></div>;
 
 export default ScoundrelCardComponent;

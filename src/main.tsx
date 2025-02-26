@@ -1,11 +1,9 @@
 import './index.css';
 
-import {
-  TooltipProvider,
-} from "@/components/ui/tooltip"
+import { TooltipProvider } from '@/components/ui/tooltip';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { HashRouter } from "react-router";
+import { HashRouter } from 'react-router';
 
 import App from './App.tsx';
 

@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Hand, Info, Sword, Swords } from 'lucide-react';
 import Confetti from 'react-confetti';
-import Markdown from 'react-markdown'
+import Markdown from 'react-markdown';
 
 import DeckComponent from '../../components/deck';
 import useMeta from '../../hooks/useMeta';
@@ -35,15 +35,16 @@ Scoundrel is a challenging and strategic solo roguelite card game where you figh
 ## Credits
 
 This game was built by Andy Challis and designed by Zach Gage, Kurt Bieg. You can find the original game [here](https://www.youtube.com/watch?v=7fP-QLtWQZs).
-`
+`;
 
 function Scoundrel() {
-
   useMeta({
-    title: "Game Time - Scoundrel",
-    description: "Scoundrel is a challenging and strategic solo roguelite card game where you fight monsters and drink potions to survive.",
-    keywords: "scoundrel, card game, roguelite, monsters, potions, fight, survive",
-    authors: ["Zach Gage", "Kurt Bieg"],
+    title: 'Game Time - Scoundrel',
+    description:
+      'Scoundrel is a challenging and strategic solo roguelite card game where you fight monsters and drink potions to survive.',
+    keywords:
+      'scoundrel, card game, roguelite, monsters, potions, fight, survive',
+    authors: ['Zach Gage', 'Kurt Bieg'],
   });
 
   const {
@@ -87,42 +88,43 @@ function Scoundrel() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className='flex flex-col md:flex-row justify-center gap-3 items-center mb-6'>
-        <div className='relative'>
+      <div className="flex flex-col md:flex-row justify-center gap-3 items-center mb-6">
+        <div className="relative">
           <h1 className="text-4xl font-bold ">Scoundrel</h1>
-          <div className='absolute top-1 -left-10'><Dialog>
-            <DialogTrigger asChild><Button variant="link"><Info /></Button></DialogTrigger>
-            <DialogContent className="min-w-10/12 max-h-3/4 overflow-y-auto">
-              <Markdown components={{
-                h1: ({ ...props }) => (
-                  <h1
-                    className='text-2xl font-bold py-1'
-                    {...props}
-                  />
-                ),
-                h2: ({ ...props }) => (
-                  <h2
-                    className='text-xl font-bold py-2'
-                    {...props}
-                  />
-                ),
-                ul: ({ ...props }) => (
-                  <ul
-                    style={{
-                      display: "block",
-                      listStyleType: "disc",
-                      paddingInlineStart: "40px",
-                    }}
-                    {...props}
-                  />
-                ),
-              }}>
-                {info}
-              </Markdown>
-            </DialogContent>
-          </Dialog></div>
+          <div className="absolute top-1 -left-10">
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="link">
+                  <Info />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="min-w-10/12 max-h-3/4 overflow-y-auto">
+                <Markdown
+                  components={{
+                    h1: ({ ...props }) => (
+                      <h1 className="text-2xl font-bold py-1" {...props} />
+                    ),
+                    h2: ({ ...props }) => (
+                      <h2 className="text-xl font-bold py-2" {...props} />
+                    ),
+                    ul: ({ ...props }) => (
+                      <ul
+                        style={{
+                          display: 'block',
+                          listStyleType: 'disc',
+                          paddingInlineStart: '40px',
+                        }}
+                        {...props}
+                      />
+                    ),
+                  }}
+                >
+                  {info}
+                </Markdown>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
-
       </div>
       {/* Confetti for win */}
       {won && (
@@ -132,66 +134,51 @@ function Scoundrel() {
       {/* Status Bar */}
       <div className="flex flex-col-reverse md:flex-row justify-between md:items-center mb-4">
         {/* Health and Deck Count */}
-        <div className='flex flex-row gap-1 w-48 items-center mt-4 md:mt-0'>
-          <div className='flex flex-row gap-1 items-center px-2'>
+        <div className="flex flex-row gap-1 w-48 items-center mt-4 md:mt-0">
+          <div className="flex flex-row gap-1 items-center px-2">
             <div className="w-5 h-6 rounded bg-red-600 " />
-            <div
-              className="font-bold text-md"
-            >
-              {deck.length}
-            </div>
+            <div className="font-bold text-md">{deck.length}</div>
           </div>
           {Array.from({ length: 10 }).map((_, index) => {
             let imageSrc = `/images/cards/heart${index < health / 2 ? '-full' : '-empty'}.png`;
-            if (index === Math.floor(health / 2) && health / 2 % 1 !== 0) {
+            if (index === Math.floor(health / 2) && (health / 2) % 1 !== 0) {
               imageSrc = '/images/cards/heart-half.png';
             }
-            return (
-              <img
-                key={index}
-                className='w-5 h-5'
-                src={imageSrc}
-              />
-            );
+            return <img key={index} className="w-5 h-5" src={imageSrc} />;
           })}
         </div>
 
         {/* Equipped Weapon */}
         <div className="w-20 mt-4 md:mt-0">
-          <div className='flex flex-row gap-2'>
-
+          <div className="flex flex-row gap-2">
             {equippedWeapon ? (
               <>
-                <div className='flex flex-row gap-1 items-center bg-red-600 rounded px-2 py-1'>
-                  <Sword className='text-white h-4 w-4' />
-                  <div
-                    className="font-bold text-md text-white"
-                  >
+                <div className="flex flex-row gap-1 items-center bg-red-600 rounded px-2 py-1">
+                  <Sword className="text-white h-4 w-4" />
+                  <div className="font-bold text-md text-white">
                     {equippedWeapon.value}
                   </div>
                 </div>
-                {equippedWeapon?.lastUsedAttack && <div className='flex flex-row gap-1 items-center bg-purple-600 rounded  px-2 py-1'>
-                  <Swords className='text-white h-4 w-4' />
-                  <div
-                    className="text-md text-white"
-                  >
-                    <span className='font-bold mr-1'>{equippedWeapon.lastUsedAttack !== null
-                      ? equippedWeapon.lastUsedAttack.value
-                      : ''}</span>
-                    {equippedWeapon.lastUsedAttack !== null
-                      ? equippedWeapon.lastUsedAttack.suit
-                      : ''}
+                {equippedWeapon?.lastUsedAttack && (
+                  <div className="flex flex-row gap-1 items-center bg-purple-600 rounded  px-2 py-1">
+                    <Swords className="text-white h-4 w-4" />
+                    <div className="text-md text-white">
+                      <span className="font-bold mr-1">
+                        {equippedWeapon.lastUsedAttack !== null
+                          ? equippedWeapon.lastUsedAttack.value
+                          : ''}
+                      </span>
+                      {equippedWeapon.lastUsedAttack !== null
+                        ? equippedWeapon.lastUsedAttack.suit
+                        : ''}
+                    </div>
                   </div>
-                </div>}
+                )}
               </>
             ) : (
-              <div className='flex flex-row gap-1 items-center bg-red-600 rounded  px-2 py-1'>
-                <Hand className='text-white h-4 w-4' />
-                <div
-                  className="font-bold text-md text-white"
-                >
-                  0
-                </div>
+              <div className="flex flex-row gap-1 items-center bg-red-600 rounded  px-2 py-1">
+                <Hand className="text-white h-4 w-4" />
+                <div className="font-bold text-md text-white">0</div>
               </div>
             )}
           </div>
@@ -199,19 +186,17 @@ function Scoundrel() {
         {/* Action Buttons */}
         <div className="flex justify-left space-x-1 ">
           <Button
-            className={`px-4 py-2 ${history.length > 0
-              ? 'bg-yellow-500 hover:bg-yellow-600'
-              : 'bg-gray-400'
-              } text-white`}
+            className={`px-4 py-2 ${
+              history.length > 0
+                ? 'bg-yellow-500 hover:bg-yellow-600'
+                : 'bg-gray-400'
+            } text-white`}
             onClick={handleUndo}
             disabled={history.length === 0}
           >
             Undo
           </Button>
-          <Button
-            variant="success"
-            onClick={handleNewGame}
-          >
+          <Button variant="success" onClick={handleNewGame}>
             New Game
           </Button>
         </div>
@@ -221,30 +206,33 @@ function Scoundrel() {
         {/* Deck */}
 
         {/* Room Cards with animation */}
-        <div
-          key={roomAnimationKey}
-          className="flex flex-row flex-wrap  gap-2"
-        >
-          <div className='flex flex-col gap-2 items-center'>
+        <div key={roomAnimationKey} className="flex flex-row flex-wrap  gap-2">
+          <div className="flex flex-col gap-2 items-center">
             <DeckComponent />
-            <div className='flex flex-row gap-2'><Button
-              className={`${unableToForfeit ? 'bg-gray-400' : 'bg-yellow-500 hover:bg-yellow-600'
-                }  ${gameOver ? 'opacity-50 cursor-not-allowed' : ''}`}
-              onClick={handleForfeit}
-              disabled={unableToForfeit || gameOver}
-            >
-              Skip
-            </Button>
+            <div className="flex flex-row gap-2">
               <Button
-                className={`${room.length === 0 || room.length === 1
-                  ? 'bg-blue-500 hover:bg-blue-600'
-                  : 'bg-gray-400'
-                  } text-white ${gameOver ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`${
+                  unableToForfeit
+                    ? 'bg-gray-400'
+                    : 'bg-yellow-500 hover:bg-yellow-600'
+                }  ${gameOver ? 'opacity-50 cursor-not-allowed' : ''}`}
+                onClick={handleForfeit}
+                disabled={unableToForfeit || gameOver}
+              >
+                Skip
+              </Button>
+              <Button
+                className={`${
+                  room.length === 0 || room.length === 1
+                    ? 'bg-blue-500 hover:bg-blue-600'
+                    : 'bg-gray-400'
+                } text-white ${gameOver ? 'opacity-50 cursor-not-allowed' : ''}`}
                 onClick={handleNextRoom}
                 disabled={!(room.length === 0 || room.length === 1) || gameOver}
               >
                 Next
-              </Button></div>
+              </Button>
+            </div>
           </div>
           {room.map(card => (
             <ScoundrelCardComponent
@@ -258,15 +246,13 @@ function Scoundrel() {
                 equippedWeapon &&
                 (equippedWeapon.lastUsedAttack === null ||
                   card.numericValue <
-                  equippedWeapon.lastUsedAttack.numericValue)
+                    equippedWeapon.lastUsedAttack.numericValue)
               }
               globalDisabled={globalDisabled}
             />
           ))}
           {Array.from({ length: 4 - room.length }).map((_, index) => (
-            <PlaceholderCard
-              key={`placeholder-${index}`}
-            ></PlaceholderCard>
+            <PlaceholderCard key={`placeholder-${index}`}></PlaceholderCard>
           ))}
         </div>
       </div>

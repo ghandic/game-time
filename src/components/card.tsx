@@ -15,7 +15,7 @@ const emojiToLetter = (emoji: string) => {
     default:
       return emoji;
   }
-}
+};
 
 const cardValueToImageNumber = (value: string) => {
   switch (value) {
@@ -30,12 +30,15 @@ const cardValueToImageNumber = (value: string) => {
     default:
       return parseInt(value);
   }
-}
+};
 // Styled like a real playing card.
 const Card = ({ card, children }: CardProps) => {
   return (
-    <div className='animate-slideIn'>
-      <img className="w-32 h-44 md:w-36 md:h-48 shadow-md" src={`/images/cards/${cardValueToImageNumber(card.value)}${emojiToLetter(card.suit)}.png`} />
+    <div className="animate-slideIn">
+      <img
+        className="w-24 h-36 md:w-36 md:h-48 shadow-md"
+        src={`/images/cards/${cardValueToImageNumber(card.value)}${emojiToLetter(card.suit)}.png`}
+      />
       {children}
     </div>
   );
