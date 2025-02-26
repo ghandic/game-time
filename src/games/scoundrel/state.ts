@@ -240,18 +240,18 @@ const useGameState = () => {
   };
 
   const ableToForfeit =
-    lastRanAwayRoomNumber === -1 ||
-    currentRoomNumber - lastRanAwayRoomNumber >= 2;
+    (lastRanAwayRoomNumber === -1 ||
+      currentRoomNumber - lastRanAwayRoomNumber >= 2) &&
+    deck.length > 4;
   const unableToForfeit = !ableToForfeit;
 
   const handleForfeit = () => {
     if (gameOver || unableToForfeit) return;
     saveState();
     const shuffledRoom = shuffle([...room]);
-    setDeck(prev => [...prev, ...shuffledRoom]);
-    setRoom([]);
+    setDeck(prev => [...prev.slice(4, prev.length), ...shuffledRoom]);
+    setRoom(deck.slice(0, 4));
     setLastRanAwayRoomNumber(currentRoomNumber);
-    handleNextRoom();
   };
 
   // Check win condition: only if game has started.

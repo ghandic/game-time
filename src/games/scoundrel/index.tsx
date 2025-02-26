@@ -186,10 +186,11 @@ function Scoundrel() {
         {/* Action Buttons */}
         <div className="flex justify-left space-x-1 ">
           <Button
-            className={`px-4 py-2 ${history.length > 0
-              ? 'bg-yellow-500 hover:bg-yellow-600'
-              : 'bg-gray-400'
-              } text-white`}
+            className={`px-4 py-2 ${
+              history.length > 0
+                ? 'bg-yellow-500 hover:bg-yellow-600'
+                : 'bg-gray-400'
+            } text-white`}
             onClick={handleUndo}
             disabled={history.length === 0}
           >
@@ -201,56 +202,58 @@ function Scoundrel() {
         </div>
       </div>
       {/* Main Play Area */}
-      <div className="flex flex-col md:flex-row items-start gap-2">
-        {/* Room Cards with animation */}
-        <div key={roomAnimationKey} className="flex flex-row flex-wrap gap-2 justify-end md:justify-start">
-          {/* Deck */}
-          <div className="flex flex-col gap-2 items-center">
-            <DeckComponent />
-            <div className="flex flex-row gap-2">
-              <Button
-                className={`${unableToForfeit
+      {/* Room Cards with animation */}
+      <div
+        key={roomAnimationKey}
+        className="flex flex-row flex-wrap gap-2 justify-end md:justify-start"
+      >
+        {/* Deck */}
+        <div className="flex flex-col gap-2 items-center">
+          <DeckComponent />
+          <div className="flex flex-row gap-2">
+            <Button
+              className={`${
+                unableToForfeit
                   ? 'bg-gray-400'
                   : 'bg-yellow-500 hover:bg-yellow-600'
-                  }  ${gameOver ? 'opacity-50 cursor-not-allowed' : ''}`}
-                onClick={handleForfeit}
-                disabled={unableToForfeit || gameOver}
-              >
-                Skip
-              </Button>
-              <Button
-                className={`${room.length === 0 || room.length === 1
+              }  ${gameOver ? 'opacity-50 cursor-not-allowed' : ''}`}
+              onClick={handleForfeit}
+              disabled={unableToForfeit || gameOver}
+            >
+              Skip
+            </Button>
+            <Button
+              className={`${
+                room.length === 0 || room.length === 1
                   ? 'bg-blue-500 hover:bg-blue-600'
                   : 'bg-gray-400'
-                  } text-white ${gameOver ? 'opacity-50 cursor-not-allowed' : ''}`}
-                onClick={handleNextRoom}
-                disabled={!(room.length === 0 || room.length === 1) || gameOver}
-              >
-                Next
-              </Button>
-            </div>
+              } text-white ${gameOver ? 'opacity-50 cursor-not-allowed' : ''}`}
+              onClick={handleNextRoom}
+              disabled={!(room.length === 0 || room.length === 1) || gameOver}
+            >
+              Next
+            </Button>
           </div>
-          {room.map(card => (
-            <ScoundrelCardComponent
-              key={card.id}
-              card={card}
-              onDrink={() => handleDrink(card)}
-              onEquip={() => handleEquip(card)}
-              onFightBareHands={() => handleFightBareHands(card)}
-              onFightWithWeapon={() => handleFightWithWeapon(card)}
-              canFightWithWeapon={
-                equippedWeapon &&
-                (equippedWeapon.lastUsedAttack === null ||
-                  card.numericValue <
-                  equippedWeapon.lastUsedAttack.numericValue)
-              }
-              globalDisabled={globalDisabled}
-            />
-          ))}
-          {Array.from({ length: 4 - room.length }).map((_, index) => (
-            <PlaceholderCard key={`placeholder-${index}`}></PlaceholderCard>
-          ))}
         </div>
+        {room.map(card => (
+          <ScoundrelCardComponent
+            key={card.id}
+            card={card}
+            onDrink={() => handleDrink(card)}
+            onEquip={() => handleEquip(card)}
+            onFightBareHands={() => handleFightBareHands(card)}
+            onFightWithWeapon={() => handleFightWithWeapon(card)}
+            canFightWithWeapon={
+              equippedWeapon &&
+              (equippedWeapon.lastUsedAttack === null ||
+                card.numericValue < equippedWeapon.lastUsedAttack.numericValue)
+            }
+            globalDisabled={globalDisabled}
+          />
+        ))}
+        {Array.from({ length: 4 - room.length }).map((_, index) => (
+          <PlaceholderCard key={`placeholder-${index}`}></PlaceholderCard>
+        ))}
       </div>
       {/* Action Buttons */}
 
