@@ -2,23 +2,41 @@ import { BaseCard } from '../types';
 
 type CardProps = React.PropsWithChildren<{ card: BaseCard }>;
 
+const emojiToLetter = (emoji: string) => {
+  switch (emoji) {
+    case '♦':
+      return 'd';
+    case '♥':
+      return 'h';
+    case '♠':
+      return 's';
+    case '♣':
+      return 'c';
+    default:
+      return emoji;
+  }
+}
+
+const cardValueToImageNumber = (value: string) => {
+  switch (value) {
+    case 'J':
+      return 11;
+    case 'Q':
+      return 12;
+    case 'K':
+      return 13;
+    case 'Ace':
+      return 1;
+    default:
+      return parseInt(value);
+  }
+}
 // Styled like a real playing card.
 const Card = ({ card, children }: CardProps) => {
   return (
-    <div className="w-36 h-48 bg-white rounded-lg border border-gray-300 shadow-md p-2 flex flex-col justify-between">
-      <div
-        className="text-xl font-bold"
-        style={{ color: ['♦', '♥'].includes(card.suit) ? 'red' : 'black' }}
-      >
-        {card.suit} {card.value}
-      </div>
+    <div>
+      <img className="w-36 h-48 shadow-md" src={`/images/cards/${cardValueToImageNumber(card.value)}${emojiToLetter(card.suit)}.png`} />
       {children}
-      <div
-        className="text-xl font-bold text-right"
-        style={{ color: ['♦', '♥'].includes(card.suit) ? 'red' : 'black' }}
-      >
-        {card.suit} {card.value}
-      </div>
     </div>
   );
 };

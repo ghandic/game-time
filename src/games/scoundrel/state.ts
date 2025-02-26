@@ -251,6 +251,7 @@ const useGameState = () => {
     setDeck(prev => [...prev, ...shuffledRoom]);
     setRoom([]);
     setLastRanAwayRoomNumber(currentRoomNumber);
+    handleNextRoom();
   };
 
   // Check win condition: only if game has started.
