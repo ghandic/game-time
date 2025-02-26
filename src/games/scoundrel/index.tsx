@@ -1,17 +1,12 @@
+import Attribution from '@/components/attribution';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
-import { Info } from 'lucide-react';
 import Confetti from 'react-confetti';
 import Markdown from 'react-markdown'
 
 import DeckComponent from '../../components/deck';
 import useMeta from '../../hooks/useMeta';
-import ScoundrelCardComponent from './components/card';
+import ScoundrelCardComponent, { PlaceholderCard } from './components/card';
 import useGameState from './state';
 
 const rules = `
@@ -168,7 +163,7 @@ function Scoundrel() {
         {/* Room Cards with animation */}
         <div
           key={roomAnimationKey}
-          className="flex flex-row flex-wrap animate-slideIn  gap-2"
+          className="flex flex-row flex-wrap animate-slideIn gap-2"
         >
           {room.map(card => (
             <ScoundrelCardComponent
@@ -186,6 +181,11 @@ function Scoundrel() {
               }
               globalDisabled={globalDisabled}
             />
+          ))}
+          {Array.from({ length: 4 - room.length }).map((_, index) => (
+            <PlaceholderCard
+              key={`placeholder-${index}`}
+            ></PlaceholderCard>
           ))}
         </div>
       </div>
@@ -240,26 +240,6 @@ function Scoundrel() {
   );
 }
 
-function Attribution({ authors = [], description = "", link = "" }: { authors?: string[], description?: string, link?: string }) {
 
-  return (
-    <Tooltip>
-      <TooltipTrigger><Info /></TooltipTrigger>
-      <TooltipContent >
-        <h2 className='text-md font-bold'>About</h2>
-        <p>
-          {description}
-        </p>
-        <h2 className='text-md font-bold pt-2'>Creators</h2>
-        <p>
-          This game was built by Andy Challis
-          and designed by <a href={link} className='text-blue-400' target='_blank'>{authors.join(", ")}.</a>
-        </p>
-      </TooltipContent>
-    </Tooltip>
-
-
-  );
-}
 
 export default Scoundrel;

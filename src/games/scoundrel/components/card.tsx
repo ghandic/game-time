@@ -1,3 +1,6 @@
+import { ClassAttributes, HTMLAttributes } from 'react';
+import { JSX } from 'react/jsx-runtime';
+
 import Card from '../../../components/card';
 import { ScoundrelCard } from '../types';
 
@@ -79,5 +82,10 @@ const ScoundrelCardComponent = ({
     </Card>
   );
 };
+
+export const PlaceholderCard = (props: JSX.IntrinsicAttributes & ClassAttributes<HTMLDivElement> & HTMLAttributes<HTMLDivElement>) => (<div
+  {...props}
+  className="w-36 h-48 border border-gray-300 rounded"
+></div>)
 
 export default ScoundrelCardComponent;
